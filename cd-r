@@ -1,0 +1,93 @@
+gravando mídia em cd-r 
+
+          _____                    _____                    _____          
+         /\    \                  /\    \                  /\    \         
+        /::\    \                /::\    \                /::\    \        
+       /::::\    \              /::::\    \              /::::\    \       
+      /::::::\    \            /::::::\    \            /::::::\    \      
+     /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \     
+    /:::/  \:::\    \        /:::/  \:::\    \        /:::/__\:::\    \    
+   /:::/    \:::\    \      /:::/    \:::\    \      /::::\   \:::\    \   
+  /:::/    / \:::\    \    /:::/    / \:::\    \    /::::::\   \:::\    \  
+ /:::/    /   \:::\    \  /:::/    /   \:::\ ___\  /:::/\:::\   \:::\____\ 
+/:::/____/     \:::\____\/:::/____/     \:::|    |/:::/  \:::\   \:::|    |
+\:::\    \      \::/    /\:::\    \     /:::|____|\::/   |::::\  /:::|____|
+ \:::\    \      \/____/  \:::\    \   /:::/    /  \/____|:::::\/:::/    / 
+  \:::\    \               \:::\    \ /:::/    /         |:::::::::/    /  
+   \:::\    \               \:::\    /:::/    /          |::|\::::/    /   
+    \:::\    \               \:::\  /:::/    /           |::| \::/____/    
+     \:::\    \               \:::\/:::/    /            |::|  ~|          
+      \:::\    \               \::::::/    /             |::|   |          
+       \:::\____\               \::::/    /              \::|   |          
+        \::/    /                \::/____/                \:|   |          
+         \/____/                  ~~                       \|___|    
+
+
+
+1-Criar a imagem iso
+-localizar arquivos e o caminho até eles.
+cd /home/killbill/killbill
+pwd 
+/home/killbill/killbill
+
+-Criar a imagem iso a partir do conteúdo deste díretório
+mkisofs -o void.iso /home/killbill/killbill
+
+-o void.iso: Especifica o nome do arquivo ISO de saída.
+/home/killbill/killbill: Indica o diretório com os arquivos a serem incluídos na ISO.
+
+2-Identificar o Dispositivo de Gravação 
+wodim --devices
+
+3-gravar a imagem iso no cd-r
+-Utilizar o comando sudo wodim para gravar a imagem ISO no CD-R. É importante substituir /dev/sg2 pelo caminho correto do seu dispositivo
+sudo wodim -v speed=4 dev=/dev/sg2 -dao void.iso
+
+sudo: Necessário para permissões de gravação.
+-v: Modo verbose (mostra detalhes do processo).
+speed=4: Define a velocidade de gravação.
+dev=/dev/sg2: Especifica o dispositivo do gravador.
+-dao: Método de gravação Disk-At-Once.
+void.iso: O arquivo da imagem ISO a ser grava
+
+4-Criar o ponto de montagem(se nescessário)
+sudo mkdir /mnt/cdrom
+
+5-Montar o cd-r 
+-Montar o CD-R usando o comando sudo mount. É crucial usar o caminho correto do dispositivo (/dev/sr0 neste caso, que parece ser o dispositivo de bloco padrão para o seu drive) e especificar o tipo de sistema de arquivos como iso9660.
+sudo mount -t iso9660 /dev/sr0 /mnt/cdrom -r
+
+sudo: Necessário para permissões de montagem.
+-t iso9660: Especifica o tipo de sistema de arquivos do CD-R.
+/dev/sr0: O dispositivo de bloco do seu drive de CD/DVD.
+/mnt/cdrom: O diretório onde o CD-R será montado.
+-r: Monta o sistema de arquivos como somente leitura.
+
+6-Acessar os arquivos no cd-r 
+cd /mnt/cdrom
+ls -l 
+
+7-Desmontar o cd-r (quando terminar)
+-desmontar ele para poder removelo com segurança
+sudo umount /mnt/cdrom
+
+-Listar dispositivos de bloco/para ver o caminho do seu drive de cd/dvd
+lsblk
+
+-vereficar mensagens do kernel:para obter informações sobre erros de montagem ou reconhecimento de dispositivos
+sudo dmesg | tail
+
+-Montar imagem iso como loopback: para verificar se a imagem iso está íntegra
+sudo mkdir /mnt/loop
+sudo mount -o loop void.iso /mnt/loop
+cd /mnt/loop
+ls -l
+sudo umount /mnt/loop
+
+-Lista dos programas(pacotes) par download e instalação
+
+sudo apt update
+sudo apt install genisoimage
+
+sudo apt update
+sudo apt install cdrtools
